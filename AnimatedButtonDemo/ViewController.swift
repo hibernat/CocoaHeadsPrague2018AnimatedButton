@@ -8,8 +8,8 @@
 
 import UIKit
 
-let demoButtonstartFrame = CGRect(x: 20, y: 20, width: 160, height: 60)
-let demoButtonfinishFrame = CGRect(x: 20, y: 320, width: 160, height: 60)
+let demoButtonStartFrame = CGRect(x: 20, y: 20, width: 160, height: 60)
+let demoButtonFinishFrame = CGRect(x: 20, y: 320, width: 160, height: 60)
 
 class ViewController: UIViewController {
     
@@ -41,7 +41,7 @@ class ViewController: UIViewController {
         self.view.addSubview(resetButton)
         // button which is the main subject of this demo
         let demoButton = DemoButton(type: .system)
-        demoButton.frame = demoButtonstartFrame
+        demoButton.frame = demoButtonStartFrame
         demoButton.setTitle("Hello world!", for: .normal)
         demoButton.backgroundColor = .green
         demoButton.addTarget(self, action: #selector(demoButtonClicked(_:)), for: .touchUpInside)
@@ -53,27 +53,32 @@ class ViewController: UIViewController {
 }
 
 // What has changed?
-// the animated button is now DemoButton class
-// DemoButton has overridden the hitTest method
+// animation is now implemented using CABasicAnimation
 
 // What to do here?
-// try to click the animated button while moving - nothing happens, but the button's text FLASHES
-// check that nothing happens when clicking at the finish position of the animated button during animation
-// animated views swallow the touch when animated using UIView.animate (button seems to be pressed, but no action called)
-// giving credit to Matt Neuburg and his great book Programming iOS 11 - DiveDeep into Views....
+// check that there is no change
 
 extension ViewController {
     
     @objc func startAnimation(_ sender: UIButton) {
-        // .allowUserInteraction disabled by deafult, must be explicitely set on
-        UIView.animate(withDuration: 4,
-                       delay: 2,
-                       options: .allowUserInteraction,
-                       animations: {self.demoButton.frame = demoButtonfinishFrame})
+//        UIView.animate(withDuration: 4,
+//                       delay: 2,
+//                       options: .allowUserInteraction,
+//                       animations: {self.demoButton.frame = demoButtonfinishFrame})
+        let demoButtonStartCenter = CGPoint(x: demoButtonStartFrame.midX, y: demoButtonStartFrame.midY)
+        let demoButtonFinishCenter = CGPoint(x: demoButtonFinishFrame.midX, y: demoButtonFinishFrame.midY)
+        let animation = CABasicAnimation(keyPath: #keyPath(CALayer.position))
+//        animation.beginTime = CACurrentMediaTime() + 2
+        animation.duration = 4
+        animation.fromValue = demoButtonStartCenter
+        animation.toValue = demoButtonFinishCenter
+        self.demoButton.layer.position = demoButtonFinishCenter
+        self.demoButton.layer.add(animation, forKey: nil)
+        
     }
     
     @objc func reset(_ sender: UIButton) {
-        UIView.animate(withDuration: 0.4) {self.demoButton.frame = demoButtonstartFrame}
+        UIView.animate(withDuration: 0.4) {self.demoButton.frame = demoButtonStartFrame}
     }
     
     @objc func demoButtonClicked(_ sender: Any?) {
