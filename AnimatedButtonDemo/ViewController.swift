@@ -40,7 +40,7 @@ class ViewController: UIViewController {
         resetButton.addTarget(self, action: #selector(reset(_:)), for: .touchUpInside)
         self.view.addSubview(resetButton)
         // button which is the main subject of this demo
-        let demoButton = DemoButton(type: .system)
+        let demoButton = UIButton(type: .system)
         demoButton.frame = demoButtonStartFrame
         demoButton.setTitle("Hello world!", for: .normal)
         demoButton.backgroundColor = .green
@@ -49,36 +49,28 @@ class ViewController: UIViewController {
         self.demoButton = demoButton
         // run timer updating position of the model and presentation layers
         self.timer = self.myTimer(withInterval: 0.2)
-        // adding gesture recognizer to the demoButton
-        let gr = UITapGestureRecognizer(target: self, action: #selector(demoButtonClicked(_:)))
-        gr.cancelsTouchesInView = true
-        demoButton.addGestureRecognizer(gr)
     }
 }
 
 // What has changed?
-// gesture recognized has been added to the demoButton
-// label now transitions to blue color when targeted by the recognizer
+// now animated using UIViewPropertyAnimator
+// demo button is now UIButton again (standard hitTest method)
+// no gesture recognizer
 
 // What to do here?
-// click on the demo button - blue color signals that it is recognized by the gesture recognizer
+// click on the demo button - red color signals that action is created by the button
 // works anytime
 
 extension ViewController {
     
     @objc func startAnimation(_ sender: UIButton) {
-//        UIView.animate(withDuration: 4,
-//                       delay: 2,
-//                       options: .allowUserInteraction,
-//                       animations: {self.demoButton.frame = demoButtonFinishFrame})
-        let demoButtonStartCenter = CGPoint(x: demoButtonStartFrame.midX, y: demoButtonStartFrame.midY)
-        let demoButtonFinishCenter = CGPoint(x: demoButtonFinishFrame.midX, y: demoButtonFinishFrame.midY)
-        let animation = CABasicAnimation(keyPath: #keyPath(CALayer.position))
-        animation.duration = 4
-        animation.fromValue = demoButtonStartCenter
-        animation.toValue = demoButtonFinishCenter
-        self.demoButton.layer.position = demoButtonFinishCenter
-        self.demoButton.layer.add(animation, forKey: nil)
+        let animator = UIViewPropertyAnimator(duration: 4, timingParameters: UICubicTimingParameters(animationCurve: .easeInOut))
+        animator.isManualHitTestingEnabled = false // false is default value
+        animator.isUserInteractionEnabled = true // true is default value
+        animator.addAnimations {
+            self.demoButton.frame = demoButtonFinishFrame
+        }
+        animator.startAnimation(afterDelay: 2)
     }
     
     @objc func reset(_ sender: UIButton) {
@@ -111,15 +103,5 @@ extension ViewController {
                                     repeats: true) { [unowned self] _ in
                                         self.label.text = String("Model: \(self.demoButton.layer.position)\nPresentation: \(self.demoButton.layer.presentation()!.position)")
         }
-    }
-}
-
-class DemoButton: UIButton {
-    // understanding of this method is key for understanding the topic discussed here
-    // this method causes that the animated button's text flashes when clicked during animation
-    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        let pointInSuperview = self.convert(point, to: self.superview!)
-        let pointInPresentationLayer = self.superview!.layer.convert(pointInSuperview, to: self.layer.presentation()!)
-        return super.hitTest(pointInPresentationLayer, with: event)
     }
 }
