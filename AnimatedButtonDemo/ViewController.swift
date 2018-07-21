@@ -56,7 +56,9 @@ class ViewController: UIViewController {
 // animation is now implemented using CABasicAnimation
 
 // What to do here?
-// check that there is no change
+// check that it works the same as before, BUT
+// when you remove the two lines with fromValue and toValue, then animation works,
+// but button does NOT highlight when clicked on animation. I have no explanation for that
 
 extension ViewController {
     
@@ -68,13 +70,11 @@ extension ViewController {
         let demoButtonStartCenter = CGPoint(x: demoButtonStartFrame.midX, y: demoButtonStartFrame.midY)
         let demoButtonFinishCenter = CGPoint(x: demoButtonFinishFrame.midX, y: demoButtonFinishFrame.midY)
         let animation = CABasicAnimation(keyPath: #keyPath(CALayer.position))
-//        animation.beginTime = CACurrentMediaTime() + 2
         animation.duration = 4
         animation.fromValue = demoButtonStartCenter
         animation.toValue = demoButtonFinishCenter
         self.demoButton.layer.position = demoButtonFinishCenter
         self.demoButton.layer.add(animation, forKey: nil)
-        
     }
     
     @objc func reset(_ sender: UIButton) {
