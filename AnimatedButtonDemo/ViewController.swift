@@ -49,16 +49,20 @@ class ViewController: UIViewController {
         self.demoButton = demoButton
         // run timer updating position of the model and presentation layers
         self.timer = self.myTimer(withInterval: 0.2)
+        // adding gesture recognizer to the demoButton
+        let gr = UITapGestureRecognizer(target: self, action: #selector(demoButtonClicked(_:)))
+        gr.cancelsTouchesInView = true
+        demoButton.addGestureRecognizer(gr)
     }
 }
 
 // What has changed?
-// animation is now implemented using CABasicAnimation
+// gesture recognized has been added to the demoButton
+// label now transitions to blue color when targeted by the recognizer
 
 // What to do here?
-// check that it works the same as before, BUT
-// when you remove the two lines with fromValue and toValue, then animation works,
-// but button does NOT highlight when clicked on animation. I have no explanation for that
+// click on the demo button - blue color signals that it is recognized by the gesture recognizer
+// works anytime
 
 extension ViewController {
     
@@ -66,7 +70,7 @@ extension ViewController {
 //        UIView.animate(withDuration: 4,
 //                       delay: 2,
 //                       options: .allowUserInteraction,
-//                       animations: {self.demoButton.frame = demoButtonfinishFrame})
+//                       animations: {self.demoButton.frame = demoButtonFinishFrame})
         let demoButtonStartCenter = CGPoint(x: demoButtonStartFrame.midX, y: demoButtonStartFrame.midY)
         let demoButtonFinishCenter = CGPoint(x: demoButtonFinishFrame.midX, y: demoButtonFinishFrame.midY)
         let animation = CABasicAnimation(keyPath: #keyPath(CALayer.position))
@@ -85,7 +89,8 @@ extension ViewController {
         // time continuously updates the self.label.text, so I have to invalidate (disable) the timer
         // and enable it again in completion closure
         // not an ideal solution, however good enough for this demo and I have not spend too much time on it
-        let signalColor: UIColor = .red
+        var signalColor: UIColor = .red
+        if sender is UIGestureRecognizer { signalColor = .blue }
         UIView.transition(with: self.label,
                           duration: 0.35,
                           options: .transitionFlipFromBottom,
