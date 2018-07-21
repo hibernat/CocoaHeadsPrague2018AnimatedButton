@@ -40,7 +40,7 @@ class ViewController: UIViewController {
         resetButton.addTarget(self, action: #selector(reset(_:)), for: .touchUpInside)
         self.view.addSubview(resetButton)
         // button which is the main subject of this demo
-        let demoButton = UIButton(type: .system)
+        let demoButton = DemoButton(type: .system)
         demoButton.frame = demoButtonstartFrame
         demoButton.setTitle("Hello world!", for: .normal)
         demoButton.backgroundColor = .green
@@ -52,12 +52,15 @@ class ViewController: UIViewController {
     }
 }
 
+// What has changed?
+// the animated button is now DemoButton class
+// DemoButton has overridden the hitTest method
+
 // What to do here?
-// Click the animated button at the start and final positions (yes, it works)
-// Try to click the animated button while moving - note the button's text does not flash, like not being clicked
-// Watch the animated button's Model and Presentation layers co-ordinates
-// Try to click the animated button's FINAL position while the button is still moving (animating)!
-// Try to click the Reset button before the animated button reaches final position
+// try to click the animated button while moving - nothing happens, but the button's text FLASHES
+// check that nothing happens when clicking at the finish position of the animated button during animation
+// animated views swallow the touch when animated using UIView.animate (button seems to be pressed, but no action called)
+// giving credit to Matt Neuburg and his great book Programming iOS 11 - DiveDeep into Views....
 
 extension ViewController {
     
@@ -98,5 +101,15 @@ extension ViewController {
                                     repeats: true) { [unowned self] _ in
                                         self.label.text = String("Model: \(self.demoButton.layer.position)\nPresentation: \(self.demoButton.layer.presentation()!.position)")
         }
+    }
+}
+
+class DemoButton: UIButton {
+    // understanding of this method is key for understanding the topic discussed here
+    // this method causes that the animated button's text flashes when clicked during animation
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let pointInSuperview = self.convert(point, to: self.superview!)
+        let pointInPresentationLayer = self.superview!.layer.convert(pointInSuperview, to: self.layer.presentation()!)
+        return super.hitTest(pointInPresentationLayer, with: event)
     }
 }
